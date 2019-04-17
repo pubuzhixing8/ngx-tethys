@@ -1,7 +1,6 @@
 import { Store, Action } from '../../../../src/store';
-import { of } from 'rxjs';
-import { tap } from 'rxjs/operators';
-
+import { of, Observable, Observer } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 
 export const DriveActions = {
     fetchFiles: 'fetchFiles',
@@ -9,24 +8,22 @@ export const DriveActions = {
     changeFold: 'changeFold'
 };
 
-export
-    interface DriveState {
+export interface DriveState {
     currentFold: {
-        id: string,
-        name: string
+        id: string;
+        name: string;
     };
     parentFolds: {
-        id: string,
-        name: string
+        id: string;
+        name: string;
     }[];
     list: {
-        type: string,
-        id: string
-        name: string
+        type: string;
+        id: string;
+        name: string;
     }[];
 }
 export class DriveStore extends Store<DriveState> {
-
     constructor() {
         super({
             currentFold: null,
@@ -51,10 +48,12 @@ export class DriveStore extends Store<DriveState> {
                 id: '1111',
                 name: '企业网盘'
             },
-            parentFolds: [{
-                id: '1111',
-                name: '企业网盘'
-            }],
+            parentFolds: [
+                {
+                    id: '1111',
+                    name: '企业网盘'
+                }
+            ],
             list: [
                 {
                     type: 'dic',
@@ -68,13 +67,27 @@ export class DriveStore extends Store<DriveState> {
                 }
             ]
         };
-        return of(apiContent)
-            .pipe(tap((state) => {
+        return of(apiContent).pipe(
+            tap(state => {
                 this.snapshot.currentFold = state.currentFold;
                 this.snapshot.parentFolds = state.parentFolds;
                 this.snapshot.list = state.list;
                 // this.next();
-            }));
+            })
+        );
+    }
+
+    @Action()
+    applyError() {
+        const dd = new Observable<String>((observer: Observer<String>) => {
+            throw new Error('Bad Number');
+            // observer.next('');
+        }).pipe(
+            catchError(error => {
+                return of('error');
+            })
+        );
+        return dd;
     }
 
     @Action()
