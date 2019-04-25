@@ -53,10 +53,11 @@
   [cdkConnectedOverlayOrigin]="origin"
   [cdkConnectedOverlayOpen]="panelOpen"
   [cdkConnectedOverlayMinWidth]="triggerRect?.width"
+  [cdkConnectedOverlayOffsetY]="_offsetY"
   (backdropClick)="close()"
   (detach)="close()"
 >
-  <div class="thy-select-container">
+  <div class="thy-select-container" [style.transformOrigin]="">
     <div class="thy-select-search" *ngIf="thyShowSearch">
       <thy-input-search
         thyAutofocus

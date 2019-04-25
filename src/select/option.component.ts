@@ -13,8 +13,10 @@ import {
     OnDestroy,
     Output,
     Inject,
-    Optional
+    Optional,
+    QueryList
 } from '@angular/core';
+import { ThyOptionGroupComponent } from '../core';
 export class OptionSelectionChange {
     option: ThyOptionComponent;
     selected: boolean;
@@ -34,6 +36,35 @@ export interface IThySelectOptionParentComponent {
 export const THY_SELECT_OPTION_PARENT_COMPONENT = new InjectionToken<IThySelectOptionParentComponent>(
     'THY_SELECT_OPTION_PARENT_COMPONENT'
 );
+
+/**
+ * Counts the amount of option group labels that precede the specified option.
+ * @param optionIndex Index of the option at which to start counting.
+ * @param options Flat list of all of the options.
+ * @param optionGroups Flat list of all of the option groups.
+ * @docs-private
+ */
+export function _countGroupLabelsBeforeOption(
+    optionIndex: number,
+    options: QueryList<ThyOptionComponent>,
+    optionGroups: QueryList<ThyOptionGroupComponent>
+): number {
+    if (optionGroups.length) {
+        const optionsArray = options.toArray();
+        const groups = optionGroups.toArray();
+        let groupCounter = 0;
+
+        for (let i = 0; i < optionIndex + 1; i++) {
+            if (optionsArray[i].group && optionsArray[i].group === groups[groupCounter]) {
+                groupCounter++;
+            }
+        }
+
+        return groupCounter;
+    }
+
+    return 0;
+}
 
 @Component({
     selector: 'thy-option',
@@ -78,6 +109,7 @@ export class ThyOptionComponent implements OnDestroy {
     constructor(
         public element: ElementRef<HTMLElement>,
         @Optional() @Inject(THY_SELECT_OPTION_PARENT_COMPONENT) public parent: IThySelectOptionParentComponent,
+        @Optional() readonly group: ThyOptionGroupComponent,
         private cdr: ChangeDetectorRef
     ) {}
 
